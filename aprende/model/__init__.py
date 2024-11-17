@@ -1,0 +1,1 @@
+from .all_model import Inspector, Provincia, Municipio, Entidad, Establecimiento, Organismo, Lineamiento, Norma, Inspeccion, Oblig_Hacer
