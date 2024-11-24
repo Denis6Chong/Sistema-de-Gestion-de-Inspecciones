@@ -1,6 +1,5 @@
-"""A container component."""
-
 import reflex as rx
+from ..styles import *
 
 
 def container(*children, **props):
@@ -15,6 +14,8 @@ def container(*children, **props):
             px="9",
             margin="0 auto",
             position="relative",
+            border_radius=border_radius,
+            box_shadow=box_shadow_style,
         )
         | props
     )

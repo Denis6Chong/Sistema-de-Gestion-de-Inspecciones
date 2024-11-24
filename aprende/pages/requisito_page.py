@@ -6,7 +6,7 @@ from ..service.norma_service import select_all_normas_service
 from ..service.requisito_service import *
 from ..notify import notify_component
 import asyncio
-
+from ..utils.base import State
 class RequisitoState(rx.State):
     #states
     requisito:list[Requisito]
@@ -22,6 +22,7 @@ class RequisitoState(rx.State):
         
         yield RequisitoState.get_all_requisito()
         yield RequisitoState.load_norma_lista()
+        yield State.check_login()
 
     def buscar_norma_on_change(self, value: str):
         self.nombre_norma = str(value)

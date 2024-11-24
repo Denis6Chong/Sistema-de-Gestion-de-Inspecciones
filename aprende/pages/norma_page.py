@@ -10,7 +10,7 @@ from ..service.norma_service import (
 from ..notify import notify_component
 import asyncio
 import re
-
+from ..utils.base import State
 class NormaState(rx.State):
     # states
     normas: list[Norma] = []
@@ -19,6 +19,7 @@ class NormaState(rx.State):
 
     @rx.background
     async def get_all_normas(self):
+        yield State.check_login()
         async with self:
             self.normas = select_all_normas_service()
 

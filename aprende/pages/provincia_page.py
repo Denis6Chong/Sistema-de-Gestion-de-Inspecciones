@@ -4,7 +4,7 @@ from ..model.all_model import Provincia
 from ..service.provincia_service import select_all_provincia_service, select_provincia_by_nombre_service, create_provincia_service
 from ..notify import notify_component
 import asyncio
-
+from ..utils.base import State
 class ProvinciaState(rx.State):
     #states
     provincia:list[Provincia]

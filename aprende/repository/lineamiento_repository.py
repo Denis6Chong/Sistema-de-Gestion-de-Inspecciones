@@ -17,11 +17,20 @@ def create_lineamiento(lineamiento: Lineamiento):
         session.commit()
         return select_all()
 
+def select_lineamiento_by_titulo(titulo: str):
+    
+    engine = connect()
+    with Session(engine) as session:
+        query = select(Lineamiento).where(Lineamiento.titulo.ilike(f"%{titulo}%") )
+        return session.exec(query).all()
+    
 def select_lineamiento_by_numero(numero: int):
+    
     engine = connect()
     with Session(engine) as session:
         query = select(Lineamiento).where(Lineamiento.numero == numero)
         return session.exec(query).all()
+
 
 def delete_lineamiento(numero: int) -> list[Lineamiento]:
     """Elimina un lineamiento por su correo electrónico y devuelve la lista actualizada."""
@@ -34,7 +43,19 @@ def delete_lineamiento(numero: int) -> list[Lineamiento]:
             session.commit()
         return select_all()  # Reutiliza la función para obtener todos
     
+def update_lineamiento(lineamiento: Lineamiento) -> list[Lineamiento]:
+    """Actualiza un lineamiento existente y devuelve la lista actualizada de lineamientoes."""
+    engine = connect()
+    with Session(engine) as session:
+        existing_lineamiento = session.get(Lineamiento, lineamiento.numero)
+        existing_lineamiento.numero = lineamiento.numero
+        existing_lineamiento.titulo = lineamiento.titulo
+        session.commit()
+        
+        # Refrescar el objeto existente para asegurarse de que está actualizado
+        session.refresh(existing_lineamiento)
 
+        return select_all()
         
 #consultas para ver que inspecciones tiene un lineamiento
 """def select_inspecciones_by_lineamiento(numero_lineamiento: int):

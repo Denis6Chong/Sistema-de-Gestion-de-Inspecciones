@@ -68,7 +68,7 @@ def update_entidad(entidad: Entidad) -> list[Entidad]:
         print(existing_entidad)
         if existing_entidad:
             existing_entidad.nombre = entidad.nombre
-            existing_entidad.siglas = entidad.direccsiglasion
+            existing_entidad.siglas = entidad.siglas
             existing_entidad.id_organismo = entidad.id_organismo
             session.commit()
         print("Entidad no encontrada con el id proporcionado")

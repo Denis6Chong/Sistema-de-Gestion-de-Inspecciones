@@ -7,6 +7,7 @@ from ..service.municipio_service import select_all_municipio_service
 from ..service.inspector_service import tiene_inspecciones_service, select_inspector_by_municipio_service, select_inspector_by_provincia_service, update_inspector_service,select_all_inspector_service, select_inspector_by_email_service, create_inspector_service, delete_inspector_service, select_all_inspectors_oh
 from ..notify import notify_component
 import asyncio
+from ..utils.base import State
 
 class InspectorState(rx.State):
     #states
@@ -30,6 +31,7 @@ class InspectorState(rx.State):
 
     @rx.background
     async def get_all_inspector(self):
+        yield State.check_login()
         async with self:
             self.inspector = select_all_inspector_service()
 

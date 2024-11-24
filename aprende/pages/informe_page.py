@@ -5,6 +5,7 @@ from ..model.all_model import Informe, Organismo
 from ..service.organismo_service import select_all_organismo_service
 from ..service.informe_service import *
 from ..notify import notify_component
+from ..utils.base import State
 import asyncio
 
 class InformeState(rx.State):
@@ -21,6 +22,7 @@ class InformeState(rx.State):
     async def load_all_data(self):
         
         yield InformeState.get_all_informe()
+        yield State.check_login()
     
 
     @rx.background
@@ -218,7 +220,7 @@ def delete_informe_dialog_component(id: str) -> rx.Component:
         rx.dialog.trigger(rx.button(rx.icon("trash_2"))),
         rx.dialog.content(
             rx.dialog.title("Eliminar Informe"),
-            rx.dialog.description("Esta seguro de querer eliminar el usuaro " + str(id)),
+            rx.dialog.description("Esta seguro de querer eliminar el informe " + str(id)),
             rx.flex(
                 rx.dialog.close(
                     rx.button(

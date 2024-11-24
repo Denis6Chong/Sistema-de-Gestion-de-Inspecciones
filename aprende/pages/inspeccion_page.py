@@ -2,7 +2,7 @@ import reflex as rx
 from ..utils.for_table import header_cell
 from ..model.all_model import Inspeccion
 from ..templates import template
-
+from ..utils.base import State
 
 from ..service.lineamiento_service import select_all_lineamientos_service
 from ..service.establecimiento_service import select_all_establecimientos_service
@@ -150,6 +150,7 @@ class InspeccionState(rx.State):
     @rx.background
     async def load_all_data(self):
         # Cargar inspectores, establecimientos e inspecciones al iniciar la página
+        yield State.check_login()
         yield InspeccionState.load_inspectores_lista()
         yield InspeccionState.load_establecimiento_lista()
         yield InspeccionState.get_all_inspeccion()

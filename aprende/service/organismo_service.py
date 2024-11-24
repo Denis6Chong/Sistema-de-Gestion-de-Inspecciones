@@ -1,4 +1,4 @@
-from ..repository.organismo_repository import update_organismo,select_organismo_by_id, select_all, create_organismo, select_organismo_by_nombre 
+from ..repository.organismo_repository import delete_organismo, update_organismo,select_organismo_by_id, select_all, create_organismo, select_organismo_by_nombre 
 from ..model.all_model import Organismo
 
 def select_all_organismo_service():
@@ -53,3 +53,9 @@ def update_organismo_service(
             direccion=direccion)
     
     return update_organismo(organismo_save)
+
+def delete_organismo_service(id_organismo: int):
+    """Elimina un organismo por su número."""
+    if id_organismo is None:
+        raise ValueError("El número del organismo no puede ser None")
+    return delete_organismo(id_organismo=id_organismo)

@@ -1,5 +1,6 @@
 import reflex as rx
 from ..utils.for_table import header_cell
+from ..utils.base import State
 from ..templates import template
 from ..service.entidad_service import select_all_entidad_service
 from ..service.provincia_service import select_all_provincia_service
@@ -82,6 +83,7 @@ class EstablecimientoState(rx.State):
     @rx.background
     async def load_all_data(self):
         
+        yield State.check_login()
         yield EstablecimientoState.load_entidad_lista()
         yield EstablecimientoState.load_municipio_lista()
         yield EstablecimientoState.get_all_establecimientos()

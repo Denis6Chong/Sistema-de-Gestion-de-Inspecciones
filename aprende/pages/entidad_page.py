@@ -1,4 +1,5 @@
 import reflex as rx
+from ..utils.base import State
 from ..utils.for_table import header_cell
 from ..templates import template
 from ..model.all_model import Entidad, Organismo
@@ -12,7 +13,8 @@ class EntidadState(rx.State):
     entidad:list[Entidad]
     entidad_buscar: str
     error: str = ""
-    organismo_lista: list[str] = []
+    organismo_lista: list[tuple[str, str]] = []
+    organismo_nombre_lista: list[str] = []
     nombre_organismo: str = ""
 
 
@@ -22,6 +24,7 @@ class EntidadState(rx.State):
         
         yield EntidadState.get_all_entidad()
         yield EntidadState.load_organismo_lista()
+        yield State.check_login()
 
     def buscar_organismo_on_change(self, value: str):
         self.nombre_organismo = str(value)
@@ -29,9 +32,16 @@ class EntidadState(rx.State):
     @rx.background
     async def load_organismo_lista(self):
         organismos = select_all_organismo_service()
-        lista = [organismo.nombre for organismo in organismos]
+        lista = []
+        lista_nombre = []
+        for organismo in organismos:
+            nombre = organismo.nombre 
+            id_organismo = organismo.id_organismo
+            lista.append((nombre, str(id_organismo)))
+            lista_nombre.append(nombre)
         async with self:
-            self.organismo_lista = lista    
+            self.organismo_lista = lista
+            self.organismo_nombre_lista = lista_nombre    
 
     @rx.background
     async def get_all_entidad(self):
@@ -55,7 +65,7 @@ class EntidadState(rx.State):
         async with self:
             try:
                 self.entidad = create_entidad_service(
-                    id_entidad=data["id_entidad"],
+                    id_entidad="",
                     nombre=data["nombre"],
                     siglas=data["siglas"],
                     id_organismo=data["id_organismo"]
@@ -181,11 +191,6 @@ def create_entidad_form() -> rx.Component:
     return rx.form(
         rx.vstack(
             rx.input(
-                placeholder="ID",
-                name="id_entidad"
-                
-            ),
-            rx.input(
                 placeholder="Nombre",
                 name="nombre",
                 is_required=True,
@@ -310,7 +315,7 @@ def update_entidad_form(entidad: Entidad) -> rx.Component:
                         )
                     )
                 ),
-                default_value=f"{entidad.id_entidad}",
+                default_value=f"{entidad.id_organismo}",
                 name="id_organismo",  # Nombre de la clave para el formulario
                 required=True,
                 ),
@@ -318,12 +323,12 @@ def update_entidad_form(entidad: Entidad) -> rx.Component:
                 rx.button("Guardar", type="submit")
             ),
         ),
-        on_submit=EntidadState.create_entidad,
+        on_submit=EntidadState.update_entidad,
     )
 
 def filtro_organismo_component() -> rx.Component:
     return rx.hstack(
-        rx.select(EntidadState.organismo_lista,
+        rx.select(EntidadState.organismo_nombre_lista,
                 placeholder="Seleccione el Organismo", on_change=EntidadState.buscar_organismo_on_change),
         rx.button("Aplicar Filtro", on_click=EntidadState.get_entidad_by_organismo) 
     )

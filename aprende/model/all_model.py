@@ -116,13 +116,10 @@ class Requisito(rx.Model, table=True):
     # Método para validar el formato de 'codigo_norma' al establecerlo
     
 class Informe(rx.Model, table=True):
-    # Código de la norma, llave primaria
     id_informe: Optional[int] = Field(
         primary_key=True,
         nullable=False,
-    # Validación del formato: 'ISO' seguido de 1 a 5 dígitos
     )
-    # Título de la norma, obligatorio
     titulo: Optional[str]
     fecha: Optional[date.date] = Field(nullable=False)
     conclusiones: Optional[str]

@@ -3,7 +3,7 @@ from ..templates import template
 from ..utils.for_table import header_cell
 from ..utils.datos import ResultadoEnum, TipoObligacionEnum
 from ..components.status_badge import status_badge
-
+from ..utils.base import State
 
 from ..model.all_model import Oblig_Hacer
 from ..service.norma_service import select_all_normas_service
@@ -79,8 +79,10 @@ class Oblig_HacerState(rx.State):
     @rx.background
     async def load_all_data(self):
         # Cargar inspectores, establecimientos e inspecciones al iniciar la página
+        yield State.check_login()
         yield Oblig_HacerState.load_codigo_norma_lista()
         yield Oblig_HacerState.get_all_oblig_hacer()
+        
 
     async def handleNotify(self):
         async with self:

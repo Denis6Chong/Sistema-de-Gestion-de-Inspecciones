@@ -35,19 +35,6 @@ def select_inspeccion_by_titulo_informe(titulo: str) -> list[Inspeccion]:
         )
         return session.exec(query).all()            
 
-def select_inspeccion_by_titulo_informe(titulo: str):
-    engine = connect()
-    with Session(engine) as session:
-        query = (
-            select(Inspeccion)
-            .where(Inspeccion.codigo_inspeccion == titulo)
-            .options(joinedload(Inspeccion.inspector), 
-                    joinedload(Inspeccion.establecimiento),
-                    joinedload(Inspeccion.informe),
-                    joinedload(Inspeccion.lineamiento)
-                    )
-        )
-        return session.exec(query).all()
 
 def select_inspeccion_by_codigo(codigo_inspeccion: str) -> list[Inspeccion]:
     """Obtiene una inspección por su código de inspección."""

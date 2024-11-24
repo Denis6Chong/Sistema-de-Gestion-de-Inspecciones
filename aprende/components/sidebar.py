@@ -40,7 +40,7 @@ def sidebar_footer() -> rx.Component:
             underline="none",
         ),
         rx.link(
-            rx.text("Blog", size="3"),
+            rx.text("Guía", size="3"),
             href="https://reflex.dev/blog/",
             color_scheme="gray",
             underline="none",

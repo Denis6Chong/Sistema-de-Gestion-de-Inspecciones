@@ -5,14 +5,22 @@ from ..repository.lineamiento_repository import (
     delete_lineamiento,
     select_all,
     select_lineamiento_by_numero,
+    update_lineamiento,
+    select_lineamiento_by_titulo
     #select_inspecciones_by_lineamiento,
     #add_lineamientos_to_inspeccion,
 )
 def select_all_lineamientos_service():
     """Devuelve todos los lineamientos."""
     return select_all()
+def select_lineamiento_by_titulo_service(titulo: str):
+    """Devuelve lineamientos por su numero."""
+    if len(titulo) != 0:
+        return select_lineamiento_by_titulo(titulo)
+    else:
+        return select_all_lineamientos_service()
 
-def select_lineamiento_by_numero_service(numero: int):
+def select_lineamiento_by_numero_service(numero: str):
     """Devuelve lineamientos por su numero."""
     if len(numero) != 0:
         return select_lineamiento_by_numero(numero)
@@ -39,6 +47,35 @@ def delete_lineamiento_service(numero: int):
     if numero is None:
         raise ValueError("El número del lineamiento no puede ser None")
     return delete_lineamiento(numero=numero)
+
+def delete_lineamiento_service(numero: int):
+    """Elimina un lineamiento por su número."""
+    if numero is None:
+        raise ValueError("El número del lineamiento no puede ser None")
+    return delete_lineamiento(numero)
+
+
+def update_lineamiento_service(
+                            numero: int, titulo: str 
+                            ):
+    if not titulo or not numero:
+    
+        raise ValueError("Faltan datos del lineamiento")
+    
+
+    
+
+
+    
+    inspeccion_save = Lineamiento(
+            
+            numero=numero,
+            titulo=titulo,
+            
+    )
+    return update_lineamiento(inspeccion_save)
+
+
 
 """def select_inspecciones_for_lineamiento_service(numero_lineamiento: int):
     #Obtiene todas las inspecciones asociadas a un lineamiento específico
