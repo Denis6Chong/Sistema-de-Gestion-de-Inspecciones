@@ -39,7 +39,7 @@ def select_informe_by_titulo_service(titulo: str):
     else:
         return select_all_informes_service()
     
-def create_informe_service(id_informe: str, titulo: str, fecha:date, conclusiones: str, conforme: int ):
+def create_informe_service(id_informe: str, titulo: str, fecha:date, conclusiones: date ):
     """Crea un nuevo informe."""
     if not titulo:
         raise ValueError("El título no puede estar vacíos")
@@ -57,7 +57,7 @@ def create_informe_service(id_informe: str, titulo: str, fecha:date, conclusione
             titulo=titulo,
             fecha=fecha,
             conclusiones=conclusiones,
-            conforme = conforme
+
 
         )
         return create_informe(nuevo_informe)
@@ -73,7 +73,7 @@ def delete_informe_service(id_informe: int):
 
 
 def update_informe_service(
-                            id_informe: str, titulo: str, fecha:date, conclusiones: str, conforme: int 
+                            id_informe: str, titulo: str, fecha:date, conclusiones: date,
                             ):
     if not titulo:
     
@@ -89,8 +89,7 @@ def update_informe_service(
             id_informe=id_informe,
             titulo=titulo,
             fecha=fecha, 
-            conclusiones=conclusiones, 
-            conforme=conforme if conforme is not None else 0, 
+            conclusiones=conclusiones,
     )
     return update_informe(inspeccion_save)
 

@@ -69,7 +69,7 @@ def update_informe(informe: Informe) -> list[Informe]:
         existing_informe.titulo = informe.titulo
         existing_informe.fecha = informe.fecha
         existing_informe.conclusiones = informe.conclusiones
-        existing_informe.conforme = informe.conforme
+        
         session.commit()
         # Refrescar el objeto existente para asegurarse de que está actualizado
         session.refresh(existing_informe)

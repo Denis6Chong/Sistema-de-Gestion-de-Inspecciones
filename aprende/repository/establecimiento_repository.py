@@ -24,6 +24,14 @@ def select_establecimiento_by_id(id_est: int):
                     joinedload(Establecimiento.entidad_relation))
         )
         return session.exec(query).all()
+    
+def select_establecimiento_by_ide(id_est: int):
+    engine = connect()
+    with Session(engine) as session:
+        query = (
+            select(Establecimiento)
+            .where(Establecimiento.id_est == id_est))
+        return session.exec(query).all()
 
 
 

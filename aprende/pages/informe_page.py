@@ -59,14 +59,13 @@ class InformeState(rx.State):
     async def create_informe(self, data: dict):
         async with self:
             try:
-                conforme = 1 if data.get("conforme") else 0
+            
 
                 self.informe = create_informe_service(
                     id_informe="",
                     titulo=data["titulo"],
                     fecha=data["fecha"],
-                    conclusiones=data["conclusiones"],
-                    conforme=conforme,
+                    conclusiones=data["conclusiones"]
 
                     )
                                                         
@@ -82,14 +81,14 @@ class InformeState(rx.State):
         print("Datos enviados para actualizar: ", data)
         async with self:
             try:
-                conforme = 1 if data.get("conforme") else 0
+                
                 
                 self.informe = update_informe_service(
                     id_informe=data["id_informe"],
                     titulo=data["titulo"],
                     fecha=data["fecha"],
                     conclusiones=data["conclusiones"],
-                    conforme=conforme,
+                
 
                     )
             except BaseException as be:
@@ -110,7 +109,7 @@ def informe_page() -> rx.Component:
     return rx.flex(
         rx.hstack(
                         rx.icon("circle-dot", size=25),
-                        rx.heading(f"Informees", size="7"),
+                        rx.heading(f"Informes", size="7"),
                         align="center",
                         spacing="2",
                         style={"margin-top":"20px"}
@@ -138,9 +137,9 @@ def table_informe(list_informe: list[Informe]) -> rx.Component:
             rx.table.row(
                 header_cell("ID", "hash"),
                 header_cell("Título","case-upper"),
-                header_cell("Fecha", "calendar"),
-                header_cell("Conclusiones", "case-sensitive"), 
-                header_cell("Conforme", "check"),   
+                header_cell("Inicio", "calendar"),
+                header_cell("Conclusiones", "calendar"), 
+                
                 header_cell("Acción", "cog")
             )
         ),
@@ -165,7 +164,7 @@ def row_table(informe: Informe, index: int) -> rx.Component:
         rx.table.cell(informe.titulo ),
         rx.table.cell(informe.fecha),
         rx.table.cell(informe.conclusiones),
-        rx.table.cell(informe.conforme),
+
         
         rx.table.cell(
             rx.hstack(
@@ -189,10 +188,8 @@ def create_informe_form() -> rx.Component:
                 name="titulo",
                 is_required=True,
             ),
-            rx.input(placeholder="Fecha", name="fecha", type="date"),
-            rx.input(placeholder="Conclusiones", name="conclusiones", type="text"),
-            rx.checkbox("Conforme", name="conforme"),
-
+            rx.input(placeholder="Fecha Inicio", name="fecha", type="date"),
+            rx.input(placeholder="Conclusiones", name="conclusiones", type="date"),
             rx.dialog.close(
                 rx.button("Guardar", type="submit")
             ),
@@ -273,14 +270,13 @@ def update_informe_form(informe: Informe) -> rx.Component:
                 
             ),
             rx.input(
-                placeholder="Título", 
+                placeholder="Establecimiento(s)", 
                 name="titulo",
                 default_value=informe.titulo,
                 is_required=True,
             ),
-            rx.input(placeholder="Fecha", name="fecha", type="date", default_value=f"{informe.fecha}"),
-            rx.input(placeholder="Conclusiones", name="conclusiones", type="text", default_value=informe.conclusiones),
-            rx.checkbox("Conforme", name="conforme", default_checked=informe.conforme == 1),
+            rx.input(placeholder="Fecha Inicio", name="fecha", type="date", default_value=f"{informe.fecha}"),
+            rx.input(placeholder="Conclusiones", name="conclusiones", type="date", default_value=f"{informe.conclusiones}"),
 
             rx.dialog.close(
                 rx.button("Guardar", type="submit")

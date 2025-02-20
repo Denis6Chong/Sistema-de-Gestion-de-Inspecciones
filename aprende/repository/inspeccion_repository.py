@@ -3,7 +3,7 @@ from .connect_db import connect
 from sqlmodel import Session, select
 from datetime import date
 from sqlalchemy.orm import joinedload
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 
 def select_all_inspecciones() -> list[Inspeccion]:
     """Obtiene todas las inspecciones."""
@@ -97,7 +97,14 @@ def select_inspecciones_by_month(month: int, year: int) -> list[Inspeccion]:
             joinedload(Inspeccion.lineamiento))
         return session.exec(query).all()
 
-
+def create_inspeccion_only(inspeccion: Inspeccion) -> Inspeccion:
+    """Crea una nueva inspección y devuelve la inspección recién creada."""
+    engine = connect()
+    with Session(engine) as session:
+        session.add(inspeccion)
+        session.commit()
+        
+    
 def create_inspeccion(inspeccion: Inspeccion) -> list[Inspeccion]:
     """Crea una nueva inspección y devuelve la lista actualizada de inspecciones."""
     engine = connect()
@@ -129,7 +136,7 @@ def update_inspeccion(inspeccion: Inspeccion) -> list[Inspeccion]:
             session.commit()
         print("Inspección no encontrada con el código proporcionado")       
         return select_all_inspecciones()  # Reutiliza la función para obtener todas
-  # Reutiliza la función para obtener todas
+# Reutiliza la función para obtener todas
     
 
 def delete_inspeccion(codigo_inspeccion: str) -> list[Inspeccion]:
@@ -203,7 +210,7 @@ def select_inspecciones_without_infraccion() -> list[Inspeccion]:
     engine = connect()
     with Session(engine) as session:
         query = select(Inspeccion).where(
-            or_(
+            and_(
                 Inspeccion.infraccion_p_o_s == 0,
                 Inspeccion.infraccion_higiene == 0,
                 Inspeccion.infraccion_metrologia == 0
@@ -269,8 +276,35 @@ def select_inspecciones_by_nombre_inspector(inspector_nombre: str) -> list[Inspe
         return session.exec(query).all()
 
 
-
-
+def select_last_inspeccion_by_producto_servicio(producto_servicio: str) -> Inspeccion:
+    """Obtiene la última inspección por su producto o servicio."""
+    engine = connect()
+    with Session(engine) as session:
+        # Consulta para obtener la última inspección basada en el nombre del producto o servicio
+        query = (
+            select(Inspeccion)
+            .where(Inspeccion.prod_o_serv_insp.ilike(f"%{producto_servicio}%"))
+            .order_by(Inspeccion.id_inspeccion.desc())  # Ordenar por id_inspeccion descendente
+            .limit(1)  # Limitar a 1 solo resultado
+            
+        )
+        # Ejecutar la consulta y devolver el primer (y único) resultado encontrado
+        return session.exec(query).one_or_none()
+def select_inspeccion_by_producto_servicio(producto_servicio: str) -> list[Inspeccion]:
+    """Obtiene una inspección por su producto o servicio."""
+    engine = connect()
+    with Session(engine) as session:
+        query = (
+            select(Inspeccion)
+            .where(Inspeccion.prod_o_serv_insp.ilike(f"%{producto_servicio}%") )
+            .options(joinedload(Inspeccion.inspector),
+                    joinedload(Inspeccion.establecimiento),
+                    joinedload(Inspeccion.informe),
+                    joinedload(Inspeccion.lineamiento)
+                    )
+        )
+        return session.exec(query).all()
+    
 def select_inspeccion_by_producto_servicio(producto_servicio: str) -> list[Inspeccion]:
     """Obtiene una inspección por su producto o servicio."""
     engine = connect()
@@ -313,6 +347,7 @@ def update_inspeccion(inspeccion: Inspeccion) -> list[Inspeccion]:
             existing_inspeccion.id_est = inspeccion.id_est
             existing_inspeccion.id_informe = inspeccion.id_informe
             existing_inspeccion.numero_lineamiento = inspeccion.numero_lineamiento
+            existing_inspeccion.codigo_real = inspeccion.codigo_real
 
             session.commit()
 

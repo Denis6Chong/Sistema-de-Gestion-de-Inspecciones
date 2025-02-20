@@ -2,6 +2,7 @@ import reflex as rx
 import random
 import datetime
 from datetime import timedelta, date
+import calendar
 from reflex.components.radix.themes.base import (
     LiteralAccentColor,
 )
@@ -68,8 +69,14 @@ class StatsState(rx.State):
     # Método para cargar datos de obligaciones del mes
     @rx.background
     async def load_obligaciones_mes_data(self):
+        
         hoy = date.today()
-        fecha_limite = hoy + timedelta(days=30)
+
+        # Obtener el último día del mes actual
+        ultimo_dia_mes = calendar.monthrange(hoy.year, hoy.month)[1]
+
+            # Crear la fecha límite como el último día del mes actual
+        fecha_limite = date(hoy.year, hoy.month, ultimo_dia_mes)
 
         obligaciones_data = obtener_obligaciones_por_categoria_y_fecha_service(fecha_limite)
 
@@ -102,7 +109,17 @@ class StatsState(rx.State):
     @rx.background
     async def load_obligaciones_trimestre_data(self):
         hoy = date.today()
-        fecha_limite = hoy + timedelta(days=90)
+
+        # Determinar el último día del trimestre según el mes actual
+        if 1 <= hoy.month <= 3:
+            fecha_limite = date(hoy.year, 3, 31)  # Primer trimestre, hasta el 31 de marzo
+        elif 4 <= hoy.month <= 6:
+            fecha_limite = date(hoy.year, 6, 30)  # Segundo trimestre, hasta el 30 de junio
+        elif 7 <= hoy.month <= 9:
+            fecha_limite = date(hoy.year, 9, 30)  # Tercer trimestre, hasta el 30 de septiembre
+        else:
+            fecha_limite = date(hoy.year, 12, 31)  # Cuarto trimestre, hasta el 31 de diciembre
+
 
         obligaciones_data = obtener_obligaciones_por_categoria_y_fecha_service(fecha_limite)
 
@@ -250,7 +267,7 @@ def revenue_chart() -> rx.Component:
                 stroke_dasharray="3 3",
             ),
             rx.recharts.area(
-                data_key="Con Infracciones",  # Este key puede mantenerse
+                data_key="No Conforme",  # Este key puede mantenerse
                 stroke=rx.color("red", 9),  # Cambiado a rojo
                 fill="url(#colorRed)",  # Cambiado a rojo
                 type_="monotone",
@@ -260,7 +277,7 @@ def revenue_chart() -> rx.Component:
             rx.recharts.legend(),
             data=StatsState.revenue_data,
             height=425,
-            title="Con Infracciones",  # Título del gráfico
+            title="No Conforme",  # Título del gráfico
         ),
         rx.recharts.bar_chart(
             _custom_tooltip("red"),  # Cambiado a rojo
@@ -268,7 +285,7 @@ def revenue_chart() -> rx.Component:
                 stroke_dasharray="3 3",
             ),
             rx.recharts.bar(
-                data_key="Con Infracciones",  # Este key puede mantenerse
+                data_key="No Conforme",  # Este key puede mantenerse
                 stroke=rx.color("red", 9),  # Cambiado a rojo
                 fill=rx.color("red", 7),  # Cambiado a rojo
             ),
@@ -277,7 +294,7 @@ def revenue_chart() -> rx.Component:
             rx.recharts.legend(),
             data=StatsState.revenue_data,
             height=425,
-            title="Con Infracciones",  # Título del gráfico
+            title="No Conforme",  # Título del gráfico
         ),
     )
 
@@ -292,7 +309,7 @@ def orders_chart() -> rx.Component:
                 stroke_dasharray="3 3",
             ),
             rx.recharts.area(
-                data_key="Sin Infracciones",
+                data_key="Conforme",
                 stroke=rx.color("purple", 9),
                 fill="url(#colorPurple)",
                 type_="monotone",
@@ -309,7 +326,7 @@ def orders_chart() -> rx.Component:
                 stroke_dasharray="3 3",
             ),
             rx.recharts.bar(
-                data_key="Sin Infracciones",
+                data_key="Conforme",
                 stroke=rx.color("purple", 9),
                 fill=rx.color("purple", 7),
             ),

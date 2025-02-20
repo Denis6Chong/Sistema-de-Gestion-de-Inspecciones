@@ -190,9 +190,10 @@ class InspeccionState(rx.State):
 
     async def get_inspecciones_with_infraccion(self):
         if self.infraccion_filter:
-            self.inspeccion = select_inspecciones_with_infraccion_service()
-        else:
             self.inspeccion = select_inspecciones_without_infraccion_service()
+            
+        else:
+            self.inspeccion = select_inspecciones_with_infraccion_service()
 
     
     @rx.background
@@ -213,6 +214,7 @@ class InspeccionState(rx.State):
                 self.inspeccion = create_inspeccion_service(
                     id_inspeccion="",
                     codigo_inspeccion="",
+                    codigo_real="",
                     prod_o_serv_insp=data["prod_o_serv_insp"],
                     fecha_inicio=data["fecha_inicio"],
                     fecha_fin=data["fecha_fin"],
@@ -330,7 +332,7 @@ def row_table(inspeccion: Inspeccion, index: int) -> rx.Component:
     )
     return rx.table.row(
         rx.table.cell(inspeccion.id_inspeccion, align="center"),
-        rx.table.cell(inspeccion.codigo_inspeccion, align="center"),
+        rx.table.cell(inspeccion.codigo_real, align="center"),
         rx.table.cell(inspeccion.prod_o_serv_insp, align="center"),
         rx.table.cell(inspeccion.fecha_inicio, align="center"),
         rx.table.cell(inspeccion.fecha_fin, align="center"),
@@ -616,7 +618,7 @@ def filtro_general_component() -> rx.Component:
         rx.select(
                 [("Seleccionar Filtro"),
                 ("Mes y Año"),
-                ("Infracciones"),
+                ("Conformidad"),
                 ("Inspector"),
                 ("Organismo"),
                 ("Informe")
@@ -629,7 +631,7 @@ def filtro_general_component() -> rx.Component:
             filtro_mes_ano_component()
         ),
         rx.cond(
-            InspeccionState.selected_filter == "Infracciones",
+            InspeccionState.selected_filter == "Conformidad",
             filtro_infraccion_component()
         ),
         rx.cond(
@@ -651,7 +653,7 @@ def filtro_general_component() -> rx.Component:
 # Filtro por infracciones
 def filtro_infraccion_component() -> rx.Component:
     return rx.hstack(
-        rx.checkbox("Solo inspecciones con infracciones", on_change=InspeccionState.on_infraccion_filter_change),
+        rx.checkbox("Conforme", on_change=InspeccionState.on_infraccion_filter_change),
         rx.button("Aplicar Filtro", on_click=InspeccionState.get_inspecciones_with_infraccion)
     )
 

@@ -122,14 +122,15 @@ class Informe(rx.Model, table=True):
     )
     titulo: Optional[str]
     fecha: Optional[date.date] = Field(nullable=False)
-    conclusiones: Optional[str]
-    conforme: int
+    conclusiones: Optional[date.date] = Field(default=None)
+
 
     inspecciones: list["Inspeccion"] = Relationship(back_populates="informe")
 
 class Inspeccion(rx.Model, table=True):
     id_inspeccion: Optional[int] = Field(default=None, unique=True)
     codigo_inspeccion: Optional[str] = Field(default=None, primary_key=True )  # Llave primaria
+    codigo_real: Optional[str] = Field(default=None)
     prod_o_serv_insp: str = Field(default="")
     fecha_inicio: date.date = Field(default="")
     fecha_fin: Optional[date.date] = Field(default=None)

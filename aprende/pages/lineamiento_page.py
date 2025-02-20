@@ -109,7 +109,7 @@ def table_lineamiento(list_lineamientos: list[Lineamiento]) -> rx.Component:
         rx.table.header(
             rx.table.row(
                 header_cell("Numero", "hash"),
-                header_cell("Titulo", "case-upper"),
+                header_cell("Directrices", "case-upper"),
                 header_cell("Accion", "cog")
             )
         ),

@@ -3,6 +3,7 @@ from .connect_db import connect
 from sqlmodel import Session, select
 from datetime import date
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 
 def select_all_obligaciones() -> list[Oblig_Hacer]:
@@ -81,7 +82,7 @@ def select_obligaciones_with_time_less_than_15_days() -> list[Oblig_Hacer]:
         obligaciones = session.exec(query).all()
         return obligaciones
     
-def obtener_obligaciones_por_categoria_y_fecha(categoria: str) -> list[Oblig_Hacer]:
+'''def obtener_obligaciones_por_categoria_y_fecha(categoria: str) -> list[Oblig_Hacer]:
     """
     Obtiene las obligaciones de hacer de una categoría específica con fecha de vencimiento en los próximos 30 días.
     
@@ -100,42 +101,137 @@ def obtener_obligaciones_por_categoria_y_fecha(categoria: str) -> list[Oblig_Hac
         )
         
         obligaciones = session.exec(query).all()
-        return obligaciones
+        return obligaciones'''
     
 
-def obtener_obligaciones_por_categoria_y_fecha(dias: int) -> dict:
+
+
+def obtener_obligaciones_por_categoria_y_fecha(fecha: datetime.date) -> dict:
     """
     Obtiene las obligaciones de hacer agrupadas por categoría, con fecha de vencimiento en los próximos 'dias' días.
+    Las obligaciones de tipo "Producto o Servicio" tienen prioridad sobre "Higiene" si comparten la misma fecha_venc y el mismo id_inspeccion.
+    Las de tipo "Metrologia" no son afectadas.
 
-    :param dias: Número de días desde la fecha actual para filtrar las obligaciones de hacer
-    :return: Diccionario con las categorías como claves y listas de obligaciones como valores
+    :param fecha: Fecha final para filtrar las obligaciones de hacer.
+    :return: Diccionario con las categorías como claves y listas de obligaciones como valores.
     """
+
+
     engine = connect()
     with Session(engine) as session:
         fecha_actual = datetime.now().date()
-    
-    
-        
+        fecha_final = fecha
+
         # Consulta para obtener obligaciones dentro del rango de fechas especificado
         query = (
             select(Oblig_Hacer)
-            .where(Oblig_Hacer.fecha_venc.between(fecha_actual, dias), Oblig_Hacer.resultado == "En Espera")
+            .where(
+                Oblig_Hacer.fecha_venc.between(fecha_actual, fecha_final),
+                Oblig_Hacer.resultado == "En Espera"
+            )
         )
-        
+
         obligaciones = session.exec(query).all()
-        
-        # Agrupar las obligaciones por categoría
+
+        # Agrupar obligaciones por combinación de fecha_venc e id_inspeccion
+        obligaciones_agrupadas = defaultdict(list)
+        for obligacion in obligaciones:
+            clave = (obligacion.fecha_venc, obligacion.id_inspeccion)
+            obligaciones_agrupadas[clave].append(obligacion)
+
+        # Crear el diccionario final con prioridades
         obligaciones_por_categoria = {
             "Producto o Servicio": [],
             "Higiene": [],
             "Metrologia": []
         }
-        
-        for obligacion in obligaciones:
-            if obligacion.tipo_obligacion in obligaciones_por_categoria:  
-                obligaciones_por_categoria[obligacion.tipo_obligacion].append(obligacion)
-        
+
+        # Procesar cada grupo respetando las prioridades
+        for clave, obligs in obligaciones_agrupadas.items():
+            # Determinar las prioridades dentro del grupo
+            producto_servicio = None
+            higiene = None
+            metrologias = []
+
+            for obligacion in obligs:
+                if obligacion.tipo_obligacion == "Producto o Servicio":
+                    producto_servicio = obligacion
+                elif obligacion.tipo_obligacion == "Higiene":
+                    higiene = obligacion
+                elif obligacion.tipo_obligacion == "Metrologia":
+                    metrologias.append(obligacion)
+
+            # Añadir obligaciones al diccionario respetando las prioridades
+            if producto_servicio:
+                obligaciones_por_categoria["Producto o Servicio"].append(producto_servicio)
+            elif higiene:  # Solo se añade si no hay "Producto o Servicio"
+                obligaciones_por_categoria["Higiene"].append(higiene)
+
+            # Las de "Metrologia" se añaden siempre
+            obligaciones_por_categoria["Metrologia"].extend(metrologias)
+
         return obligaciones_por_categoria
+    
+
+def obtener_obligaciones_por_fecha(fecha: datetime.date) -> list:
+    """
+    Obtiene una lista de todas las obligaciones de hacer con fecha de vencimiento en los próximos días especificados.
+    Las obligaciones de tipo "Producto o Servicio" tienen prioridad sobre "Higiene" si comparten la misma fecha_venc y el mismo id_inspeccion.
+    Las de tipo "Metrologia" no son afectadas.
+
+    :param fecha: Fecha final para filtrar las obligaciones de hacer.
+    :return: Lista con todas las obligaciones que cumplen los criterios.
+    """
+    engine = connect()
+    with Session(engine) as session:
+        fecha_actual = datetime.now().date()
+        fecha_final = fecha
+
+        # Consulta para obtener obligaciones dentro del rango de fechas especificado
+        query = (
+            select(Oblig_Hacer)
+            .where(
+                Oblig_Hacer.fecha_venc.between(fecha_actual, fecha_final),
+                Oblig_Hacer.resultado == "En Espera"
+            )
+        )
+
+        obligaciones = session.exec(query).all()
+
+        # Agrupar obligaciones por combinación de fecha_venc e id_inspeccion
+        obligaciones_agrupadas = defaultdict(list)
+        for obligacion in obligaciones:
+            clave = (obligacion.fecha_venc, obligacion.id_inspeccion)
+            obligaciones_agrupadas[clave].append(obligacion)
+
+        # Lista final de obligaciones procesadas
+        obligaciones_resultado = []
+
+        # Procesar cada grupo respetando las prioridades
+        for clave, obligs in obligaciones_agrupadas.items():
+            producto_servicio = None
+            higiene = None
+            metrologias = []
+
+            for obligacion in obligs:
+                if obligacion.tipo_obligacion == "Producto o Servicio":
+                    producto_servicio = obligacion
+                elif obligacion.tipo_obligacion == "Higiene":
+                    higiene = obligacion
+                elif obligacion.tipo_obligacion == "Metrologia":
+                    metrologias.append(obligacion)
+
+            # Añadir obligaciones al resultado respetando las prioridades
+            if producto_servicio:
+                obligaciones_resultado.append(producto_servicio)
+            elif higiene:  # Solo se añade si no hay "Producto o Servicio"
+                obligaciones_resultado.append(higiene)
+
+            # Las de "Metrologia" se añaden siempre
+            obligaciones_resultado.extend(metrologias)
+
+        return obligaciones_resultado
+
 
 def select_obligaciones_by_month_fecha_inicio(month: int, year: int) -> list[Oblig_Hacer]:
     """Obtiene las oblig realizadas en un mes y año específicos."""

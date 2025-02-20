@@ -73,7 +73,7 @@ def index() -> rx.Component:
         graph.revenue_data.append(
             {
                 "Date": target_date.strftime("%b %Y"),
-                "Con Infracciones": revenue_count,
+                "No Conforme": revenue_count,
             }
         )
 
@@ -85,7 +85,7 @@ def index() -> rx.Component:
         graph.orders_data.append(
             {
                 "Date": target_date.strftime("%b %Y"),
-                "Sin Infracciones": orders_count,
+                "Conforme": orders_count,
             }
         )
     
@@ -105,8 +105,8 @@ def index() -> rx.Component:
                     tab_content_header(),
                     rx.segmented_control.root(
                         rx.segmented_control.item("Todas", value="users"),
-                        rx.segmented_control.item("Con Infracciones", value="revenue"),
-                        rx.segmented_control.item("Sin Infracciones", value="orders"),
+                        rx.segmented_control.item("No Conforme", value="revenue"),
+                        rx.segmented_control.item("Conforme", value="orders"),
                         margin_bottom="1.5em",
                         default_value="users",
                         on_change=StatsState.set_selected_tab,

@@ -134,7 +134,7 @@ def table_requisito(list_requisito: list[Requisito]) -> rx.Component:
         rx.table.header(
             rx.table.row(
                 header_cell("ID", "hash"),
-                header_cell("Titulo", "case-sensitive"),
+                header_cell("Acápites", "case-sensitive"),
                 header_cell("Código_Norma", "book"),    
                 header_cell("Acción", "cog")
             )

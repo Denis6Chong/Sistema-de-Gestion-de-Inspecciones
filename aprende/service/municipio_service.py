@@ -26,3 +26,4 @@ def create_municipio_service(nombre: str, nombre_provincia: str):
     else:
         print("La municipio ya existe")
         raise BaseException("La municipio ya existe")
+    
